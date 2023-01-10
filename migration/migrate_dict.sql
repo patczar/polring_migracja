@@ -1,0 +1,1 @@
+-- Migracja tabel słownikowych
