@@ -1,0 +1,97 @@
+z mssql było przenoszone do postgresa
+
+już w PG zrobić strukturę
+
+n iektóre 1→1, ale zmiana nazw
+
+w niektórych zmienia się struktura
+
+część danych to są "pliki trzymane w bazie"
+
+Bartek wyciągnął pliki - są to zewnętrzne pliki identyfikowane haszem, a w tabelach identyfikacja tych plików
+
+Tabele słownikowe - na teraz.
+
+Również amatorzy obserwują ptaki i on
+
+
+sighting - stwierdzenie (obserwacja) ptaka w określonym miejscu
+dane na temat obserwacji
+* lokalizacja
+* dużo danych jest obowiązkowych
+* ale jest też duża liczba informacji opcjonalnych
+Ptak może mieć kilka obrączek.
+
+Nie ma encji ptak.
+Stwierdzenie podstawowe - do niego dowiązywane są dalsze stwierdzenia
+
+primary_sighting_id - self join do sighting_id
+
+primary_sighting_id = NULL znaczy brak danych nt stw. pierwotniego
+sighting_id = primary_sighting_id → kryterium techniczne, że to jest stw. pierwotniego
+
+połączenie między stwierdzeniami i obrączkami idzie przez (docelowo) ring_sighting
+
+w oryginalnej było (chyba) oryg odniesienie do obrączki (tu zmiana struktury)
+
+kryterium: stw. pierw. to takie, dla którego wszystkie obrączki mają status "założono"
+
+Na ten moment:
+Przenieść stwierdzenia i dane bezpośrednio powiązane
+Precond: słowniki. W starej bazie bk_
+
+id_pomiar, id_pomiar1 itd. to są dane kolejnych pomiarów one idą do oddzielnej tabeli
+
+
+Gdzie się da, chcemy zachować identyfikatory
+
+measurements - id za pomocą sekwencji (auto)
+
+
+OBRĄCZKI
+w starej stwierdzenia są id_obr1 i id_obr2 - to są "id obrączkarza", czyli usera)
+
+obraczki_stan to jest pośrednie powiązanie obserwacji i obrączki
+
+obrączki metalowe oraz inne (plastikowe - kolorwe)
+
+w starej wersji były dwie tabele na to. używane były głównie w metalowe
+* obraczki (metalowe)
+* magobraczki i magkolorowe - zarządzanie obrączkami
+
+w nowej jest jedna tabela na dwa rodzaje obrączek
+
+Druga funkcjonalność: gospodarka obrączkami
+* zamówienia, dystrybucja, magazyny
+W starej bazie zajmują się tym tabele z "mag" w nazwie
+
+ptaki_mag to tak naprawdę status obrączki, a nie jakiś prawdziwy "magazyn"
+
+
+To, co wiążę, to numer i typ obrączki.
+
+na metalowej centrala (=schemat, zwykle jeden kraj) i numer
+
+dla kolorowej podaje się kolor (do dwóch) i numer, ale też gatunek ptaka dodatkowo identyfikuje
+
+rezygnacja z wielu kolumn, które są tak naprawdę redundatne
+
+obraczki seria numer i numer_ob_pel (konkatenacja) i z mniej rezygnujemy
+do łączenia obraczek z magazynem używają właśnie tej kolumny
+
+magobraczki: lpdlug - liczba znaków; lp - po prostu numer, a plpelny uzupełniony o zera
+
+docelowo rezygnujemy z serii, będzie tylko numer (dawniej seria + numer) zapisane tekstowo
+
+użytkownicy podzieleni na 4 tabele w zależności od rodzaju. docelowo są w jednej oznaczeni rolą.
+
+postgis
+
+
+Zacząć od stwierdzenia, lokalizacje i pomiary, następnie przejść do obrączek.
+Konieczne są słowniki, ale ktoś już je przerzucił.
+
+TRUNCATE lista tabel (poza dict i migrations)
+
+pochrybiak@gmail.com
+
