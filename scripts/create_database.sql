@@ -1,10 +1,12 @@
 DROP DATABASE polring;
-
+DROP TABLESPACE polring;
 DROP ROLE polring;
 
 CREATE USER polring PASSWORD 'secret' CREATEDB;
 
-CREATE DATABASE polring OWNER polring ENCODING 'utf-8';
+CREATE TABLESPACE polring OWNER polring LOCATION '/mnt/wd6/pgsql/polring';
+
+CREATE DATABASE polring OWNER polring ENCODING 'utf-8' TABLESPACE polring;
 
 \c polring
 CREATE EXTENSION postgis;
