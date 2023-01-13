@@ -1,6 +1,32 @@
 -- Migracja obserwacji i ściśle powiązanych tabel
 
-TRUNCATE public.sightings;
+BEGIN;
+
+TRUNCATE public.sightings
+    , public.interesting_sightings
+    , public.measurements
+    , public.notification_sightings
+    , public.ring_sighting
+    , public.sighting_amendments
+    , public.sighting_amendment_files
+    , public.sighting_amendment_conversations
+    , public.sighting_files
+    , public.sighting_rejection_reasons
+    , public.sighting_sighting_import
+    , public.sighting_user
+    , public.sighting_verifications
+;
+
+-- FIXME tymczasowe wyłączenie FK, bo dane nie pasują
+ALTER TABLE public.sightings DROP CONSTRAINT IF EXISTS sightings_pullus_age_id_foreign;
+
+-- przywrócenie:
+/*
+alter table public.sightings
+    add constraint sightings_pullus_age_id_foreign
+        foreign key (pullus_age_id) references public.dict_ages;
+*/
+
 
 -- ptaki_stwierdzenia → sightings
 INSERT INTO public.sightings (id, "date", "hour", minutes, comments, comments_hidden, date_accuracy_id, species_id,
@@ -38,9 +64,11 @@ SELECT id_stw, -- id,
        id_wer, --ring_verification_id,
        datawpr, --created_at,
        dataed, --updated_at,
+       -- TODO mapowanie locations
        NULL, -- id_lokalizacja, --location_id,
-       id_uzytkownika_wpr, --created_by,
-       id_uzytkownika_ed, --updated_by,
+       -- TODO mapowanie users
+       NULL, -- id_uzytkownika_wpr, --created_by,
+       NULL, -- id_uzytkownika_ed, --updated_by,
        id_stwpierwotne, --primary_sighting_id,
        NULL, --is_shown_on_public_map,
        false, --is_virtual, !
@@ -53,117 +81,8 @@ SELECT id_stw, -- id,
        wiekpis, --pullus_age_id, ?
        id_doklpis --pullus_age_accuracy_id
 FROM dbo.ptaki_stwierdzenia
-LIMIT 1;
+--LIMIT 1000
+;
 
-SELECT id_stw, --z
-       pierwotne, --n
-       data,--z
-       godzina,--z
-       minuty,--z
-       id_poprawny,
-       id_wer, --z
-       id_gat1, --z
-       id_gat2, --x
-       gatunek, --n
-       id_manip, --z
-       id_przem, --z
-       id_chwyt, --z
-       id_wabik, --z
-       id_plec1, --z
-       id_plec2, --x
-       id_wiek1, --z
-       id_wiek2, --x
-       --szata, --n ?
-       id_status, --z
-       lp, --n ?
-       wiekpis, --x
-       id_doklpis, --z
-       id_dd, --z
-       id_kond, --z
-       id_okol, --z
-       id_okolvalid, --z
-       uwagi, --x
-       id_korespond,
-       wykaznr,
-       wykazrok,
-       r1ctr,
-       r1nrob,
-       r2ctr,
-       r2nrob,
-       rnrob,
-       id_obr1,
-       id_obr2,
-       imie,
-       nazwisko,
-       email,
-       zrdinfo,
-       odleglosc,
-       czasodpierw,
-       kat,
-       id_lokalizacja, --z
-       infododnazwa,
-       infodod,
-       katportodromy,
-       inniznalazcy, --z
-       id_stwgosc,
-       id_stwpierwotne, --z
-       datawpr, --z
-       dataed, --z
-       id_uzytkownika_wpr, --z
-       id_uzytkownika_ed, --z
-       adres,
-       datawer,
-       wys_potw,
-       zn_monitrodz,
-       zn_monit1data,
-       zn_monit1ilosc,
-       zn_monit2data,
-       zn_monit2ilosc,
-       zn_wyjas,
-       id_szata, --z
-       jezyk,
-       udost,
-       -- p:
-       id_pomiar,
-       pomr,
-       pomwartl,
-       pomwart,
-       id_pomiar1,
-       pomr1,
-       pomwartl1,
-       pomwart1,
-       id_pomiar2,
-       pomr2,
-       pomwartl2,
-       pomwart2,
-       id_pomiar3,
-       pomr3,
-       pomwartl3,
-       pomwart3,
-       id_pomiar4,
-       pomr4,
-       pomwartl4,
-       pomwart4,
-       id_pomiar5,
-       pomr5,
-       pomwartl5,
-       pomwart5,
-       id_pomiar6,
-       pomr6,
-       pomwartl6,
-       pomwart6,
-       id_pomiar7,
-       pomr7,
-       pomwartl7,
-       pomwart7,
-       id_pomiar8,
-       pomr8,
-       pomwartl8,
-       pomwart8,
-       id_pomiar9,
-       pomr9,
-       pomwartl9,
-       pomwart9,
-       hash
-FROM dbo.ptaki_stwierdzenia
-LIMIT 1;
+COMMIT;
+
