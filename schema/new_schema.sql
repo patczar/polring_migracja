@@ -358,6 +358,44 @@ ALTER SEQUENCE public.applications_id_seq OWNED BY public.data_sharing_requests.
 
 
 --
+-- Name: bird_family_sightings_rings; Type: TABLE; Schema: public; Owner: laravel
+--
+
+CREATE TABLE public.bird_family_sightings_rings (
+    id bigint NOT NULL,
+    sighting_id bigint NOT NULL,
+    family_member_ring_id bigint NOT NULL,
+    family_member_role character varying(255) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    CONSTRAINT bird_family_sightings_rings_family_member_role_check CHECK (((family_member_role)::text = ANY ((ARRAY['PARENT'::character varying, 'PARTNER'::character varying, 'CHILD'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.bird_family_sightings_rings OWNER TO laravel;
+
+--
+-- Name: bird_family_sightings_rings_id_seq; Type: SEQUENCE; Schema: public; Owner: laravel
+--
+
+CREATE SEQUENCE public.bird_family_sightings_rings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.bird_family_sightings_rings_id_seq OWNER TO laravel;
+
+--
+-- Name: bird_family_sightings_rings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: laravel
+--
+
+ALTER SEQUENCE public.bird_family_sightings_rings_id_seq OWNED BY public.bird_family_sightings_rings.id;
+
+
+--
 -- Name: dict_ages; Type: TABLE; Schema: public; Owner: laravel
 --
 
@@ -2126,13 +2164,19 @@ ALTER SEQUENCE public.mail_templates_id_seq OWNED BY public.mail_templates.id;
 CREATE TABLE public.notification_variables (
     id bigint NOT NULL,
     name character varying(255) NOT NULL,
-    description character varying(255) NOT NULL,
+    description_pl character varying(255) NOT NULL,
     value_pl character varying(255),
     value_en character varying(255),
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
     is_constant boolean DEFAULT true NOT NULL,
-    custom_property character varying(255)
+    custom_property character varying(255),
+    description_en character varying(255),
+    format_constraint character varying(255),
+    variable_context character varying(255),
+    sort_order integer DEFAULT 0 NOT NULL,
+    CONSTRAINT notification_variables_format_constraint_check CHECK (((format_constraint)::text = ANY ((ARRAY['PDF'::character varying, 'EMAIL'::character varying, ''::character varying])::text[]))),
+    CONSTRAINT notification_variables_variable_context_check CHECK (((variable_context)::text = ANY ((ARRAY['SIGHTING'::character varying, 'STOCK'::character varying, 'USER'::character varying, ''::character varying])::text[])))
 );
 
 
@@ -2705,8 +2749,7 @@ CREATE TABLE public.rings (
     id bigint NOT NULL,
     ring_type_id bigint,
     scheme_id bigint,
-    series character varying(10),
-    number character varying(50),
+    number character varying(60),
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
     species_id bigint,
@@ -3260,8 +3303,10 @@ CREATE TABLE public.sightings (
     other_finders text,
     parent_ring_number character varying(255),
     pullus_number integer,
-    pullus_age_id bigint,
-    pullus_age_accuracy_id bigint
+    pullus_age_accuracy_id bigint,
+    pullus_age smallint,
+    unread_ring boolean,
+    family_ring_number character varying(255)
 );
 
 
@@ -3287,6 +3332,25 @@ ALTER TABLE public.sightings_id_seq OWNER TO laravel;
 
 ALTER SEQUENCE public.sightings_id_seq OWNED BY public.sightings.id;
 
+
+--
+-- Name: static_notification_variables; Type: TABLE; Schema: public; Owner: laravel
+--
+
+CREATE TABLE public.static_notification_variables (
+    id character varying(255) NOT NULL,
+    namespace character varying(255),
+    notification_format character varying(255),
+    variable_context character varying(255),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    CONSTRAINT static_notification_variables_namespace_check CHECK (((namespace)::text = ANY ((ARRAY['SELECTED'::character varying, 'PRIMARY'::character varying, 'RINGS'::character varying, 'OTHER_SIGHTINGS'::character varying, ''::character varying])::text[]))),
+    CONSTRAINT static_notification_variables_notification_format_check CHECK (((notification_format)::text = ANY ((ARRAY['PDF'::character varying, 'EMAIL'::character varying, ''::character varying])::text[]))),
+    CONSTRAINT static_notification_variables_variable_context_check CHECK (((variable_context)::text = ANY ((ARRAY['SIGHTING'::character varying, 'STOCK'::character varying, 'USER'::character varying, ''::character varying])::text[])))
+);
+
+
+ALTER TABLE public.static_notification_variables OWNER TO laravel;
 
 --
 -- Name: stock_document_position_rings_in_stocks; Type: TABLE; Schema: public; Owner: laravel
@@ -3738,6 +3802,13 @@ ALTER TABLE ONLY public.addresses ALTER COLUMN id SET DEFAULT nextval('public.ad
 --
 
 ALTER TABLE ONLY public.application_configurations ALTER COLUMN id SET DEFAULT nextval('public.application_configurations_id_seq'::regclass);
+
+
+--
+-- Name: bird_family_sightings_rings id; Type: DEFAULT; Schema: public; Owner: laravel
+--
+
+ALTER TABLE ONLY public.bird_family_sightings_rings ALTER COLUMN id SET DEFAULT nextval('public.bird_family_sightings_rings_id_seq'::regclass);
 
 
 --
@@ -4351,6 +4422,14 @@ ALTER TABLE ONLY public.application_configurations
 
 ALTER TABLE ONLY public.data_sharing_requests
     ADD CONSTRAINT applications_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: bird_family_sightings_rings bird_family_sightings_rings_pkey; Type: CONSTRAINT; Schema: public; Owner: laravel
+--
+
+ALTER TABLE ONLY public.bird_family_sightings_rings
+    ADD CONSTRAINT bird_family_sightings_rings_pkey PRIMARY KEY (id);
 
 
 --
@@ -4978,6 +5057,14 @@ ALTER TABLE ONLY public.sightings
 
 
 --
+-- Name: static_notification_variables static_notification_variables_pkey; Type: CONSTRAINT; Schema: public; Owner: laravel
+--
+
+ALTER TABLE ONLY public.static_notification_variables
+    ADD CONSTRAINT static_notification_variables_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: stock_document_position_rings_in_stocks stock_document_position_rings_in_stocks_pkey; Type: CONSTRAINT; Schema: public; Owner: laravel
 --
 
@@ -5193,13 +5280,6 @@ CREATE INDEX rings_number_index ON public.rings USING btree (number);
 
 
 --
--- Name: rings_series_index; Type: INDEX; Schema: public; Owner: laravel
---
-
-CREATE INDEX rings_series_index ON public.rings USING btree (series);
-
-
---
 -- Name: sightings_created_at_index; Type: INDEX; Schema: public; Owner: laravel
 --
 
@@ -5211,6 +5291,13 @@ CREATE INDEX sightings_created_at_index ON public.sightings USING btree (created
 --
 
 CREATE INDEX sightings_date_hour_minutes_index ON public.sightings USING btree (date, hour, minutes);
+
+
+--
+-- Name: sightings_family_ring_number_index; Type: INDEX; Schema: public; Owner: laravel
+--
+
+CREATE INDEX sightings_family_ring_number_index ON public.sightings USING btree (family_ring_number);
 
 
 --
@@ -5256,6 +5343,22 @@ ALTER TABLE ONLY public.data_sharing_requesters
 
 ALTER TABLE ONLY public.data_sharing_requests
     ADD CONSTRAINT applications_address_id_foreign FOREIGN KEY (address_id) REFERENCES public.addresses(id);
+
+
+--
+-- Name: bird_family_sightings_rings bird_family_sightings_rings_family_member_ring_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: laravel
+--
+
+ALTER TABLE ONLY public.bird_family_sightings_rings
+    ADD CONSTRAINT bird_family_sightings_rings_family_member_ring_id_foreign FOREIGN KEY (family_member_ring_id) REFERENCES public.rings(id);
+
+
+--
+-- Name: bird_family_sightings_rings bird_family_sightings_rings_sighting_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: laravel
+--
+
+ALTER TABLE ONLY public.bird_family_sightings_rings
+    ADD CONSTRAINT bird_family_sightings_rings_sighting_id_foreign FOREIGN KEY (sighting_id) REFERENCES public.sightings(id);
 
 
 --
@@ -5984,14 +6087,6 @@ ALTER TABLE ONLY public.sightings
 
 ALTER TABLE ONLY public.sightings
     ADD CONSTRAINT sightings_pullus_age_accuracy_id_foreign FOREIGN KEY (pullus_age_accuracy_id) REFERENCES public.dict_bird_birth_accuracies(id);
-
-
---
--- Name: sightings sightings_pullus_age_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: laravel
---
-
-ALTER TABLE ONLY public.sightings
-    ADD CONSTRAINT sightings_pullus_age_id_foreign FOREIGN KEY (pullus_age_id) REFERENCES public.dict_ages(id);
 
 
 --

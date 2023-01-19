@@ -17,16 +17,6 @@ TRUNCATE public.sightings
     , public.sighting_verifications
 ;
 
--- FIXME tymczasowe wyłączenie FK, bo dane nie pasują
-ALTER TABLE public.sightings DROP CONSTRAINT IF EXISTS sightings_pullus_age_id_foreign;
-
--- przywrócenie:
-/*
-alter table public.sightings
-    add constraint sightings_pullus_age_id_foreign
-        foreign key (pullus_age_id) references public.dict_ages;
-*/
-
 
 -- ptaki_stwierdzenia → sightings
 INSERT INTO public.sightings (id, "date", "hour", minutes, comments, comments_hidden, date_accuracy_id, species_id,
@@ -36,50 +26,52 @@ INSERT INTO public.sightings (id, "date", "hour", minutes, comments, comments_hi
                        bird_birth_accuracy_id, ring_verification_id, created_at, updated_at, location_id, created_by,
                        updated_by, primary_sighting_id, is_shown_on_public_map, is_virtual, species_description,
                        is_info_from_third_party, is_in_progress, other_finders, parent_ring_number, pullus_number,
-                       pullus_age_id, pullus_age_accuracy_id)
-SELECT id_stw, -- id,
-        data, -- "date",
-       godzina, -- "hour",
-       minuty, --minutes,
-       uwagi, --comments,
-       NULL, --comments_hidden,
-       id_dd, --date_accuracy_id,
-       id_gat1, -- species_id,
-       id_gat2, -- species_by_scheme_id, ?
-       id_wiek1, -- age_id,
-       id_wiek2, -- age_by_scheme_id, ?
-       id_plec1, --sex_id,
-       id_plec2, --sex_by_scheme_id, ?
-       id_szata, --plumage_id,
-       id_kond, --condition_id,
-       id_okol, --circumstances_id,
-       id_okolvalid, --circumstances_validation_id,
-       id_wabik, --decoy_id,
-       id_chwyt, --capture_method_id,
-       NULL, --sighting_status_id,
-       id_status, --bird_status_id,
-       id_przem, --bird_displacement_id,
-       id_manip, --bird_manipulation_id,
-       NULL, --bird_birth_accuracy_id,
-       id_wer, --ring_verification_id,
-       datawpr, --created_at,
-       dataed, --updated_at,
-       -- TODO mapowanie locations
-       NULL, -- id_lokalizacja, --location_id,
-       -- TODO mapowanie users
-       NULL, -- id_uzytkownika_wpr, --created_by,
-       NULL, -- id_uzytkownika_ed, --updated_by,
-       id_stwpierwotne, --primary_sighting_id,
-       NULL, --is_shown_on_public_map,
-       false, --is_virtual, !
-       gatunek, --species_description, ?? infododnazwa?
-       false, --is_info_from_third_party, !
-       NULL, --is_in_progress,
-       inniznalazcy, --other_finders,
-       NULL, --parent_ring_number,
-       NULL, --pullus_number,
-       wiekpis, --pullus_age_id, ?
-       id_doklpis --pullus_age_accuracy_id
+                       pullus_age, pullus_age_accuracy_id, unread_ring, family_ring_number)
+SELECT id_stw -- id,
+       ,data -- "date",
+       ,godzina -- "hour",
+       ,minuty --minutes,
+       ,uwagi --comments,
+       ,NULL --comments_hidden,
+       ,id_dd --date_accuracy_id,
+       ,id_gat1 -- species_id,
+       ,id_gat2 -- species_by_scheme_id, ?
+       ,id_wiek1 -- age_id,
+       ,id_wiek2 -- age_by_scheme_id, ?
+       ,id_plec1 --sex_id,
+       ,id_plec2 --sex_by_scheme_id, ?
+       ,id_szata --plumage_id,
+       ,id_kond --condition_id,
+       ,id_okol --circumstances_id,
+       ,id_okolvalid --circumstances_validation_id,
+       ,id_wabik --decoy_id,
+       ,id_chwyt --capture_method_id,
+       ,NULL --sighting_status_id,
+       ,id_status --bird_status_id,
+       ,id_przem --bird_displacement_id,
+       ,id_manip --bird_manipulation_id,
+       ,NULL --bird_birth_accuracy_id,
+       ,id_wer --ring_verification_id,
+       ,datawpr --created_at,
+       ,dataed --updated_at,
+       --TODO mapowanie locations
+       ,NULL -- id_lokalizacja, --location_id,
+       --TODO mapowanie users
+       ,NULL -- id_uzytkownika_wpr, --created_by,
+       ,NULL -- id_uzytkownika_ed, --updated_by,
+       ,id_stwpierwotne --primary_sighting_id,
+       ,NULL --is_shown_on_public_map,
+       ,false --is_virtual, !
+       ,gatunek --species_description, ?? infododnazwa?
+       ,false --is_info_from_third_party, !
+       ,NULL --is_in_progress,
+       ,inniznalazcy --other_finders,
+       ,NULL --parent_ring_number,
+       ,NULL --pullus_number,
+       ,wiekpis --pullus_age,
+       ,id_doklpis--pullus_age_accuracy_id
+       ,NULL --unread_ring
+       ,NULL --family_ring_number
 FROM dbo.ptaki_stwierdzenia
 --LIMIT 1000
 ;
