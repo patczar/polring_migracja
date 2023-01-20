@@ -74,10 +74,9 @@ SELECT id_stw -- id,
        ,NULL --unread_ring
        ,NULL --family_ring_number
 FROM dbo.ptaki_stwierdzenia
---LIMIT 1000
 ;
 
-
+-- ptaki_stwierdzenia → measurements
 INSERT INTO public.measurements (
     measurement_type_id
     ,sighting_id
@@ -93,53 +92,44 @@ SELECT measurement_type_id
     ,text_value
     ,created_at
     ,updated_at
-    ,FALSE --is_direct ???
-FROM (SELECT
-     id_pomiar AS measurement_type_id
-    ,id_stw AS sighting_id
-    ,pomwartl AS numeric_value
-    ,pomwart AS text_value
-    ,datawpr AS created_at --?
-    ,dataed AS updated_at --?
-    ,0 AS measurement_no
- FROM dbo.ptaki_stwierdzenia
- WHERE id_pomiar IS NOT NULL
-UNION ALL
- SELECT id_pomiar1 ,id_stw ,pomwartl1 ,pomwart1 ,datawpr ,dataed ,1
- FROM dbo.ptaki_stwierdzenia
- WHERE id_pomiar1 IS NOT NULL
-UNION ALL
- SELECT id_pomiar2 ,id_stw ,pomwartl2 ,pomwart2 ,datawpr ,dataed ,2
- FROM dbo.ptaki_stwierdzenia
- WHERE id_pomiar2 IS NOT NULL
-UNION ALL
- SELECT id_pomiar3 ,id_stw ,pomwartl3 ,pomwart3 ,datawpr ,dataed ,3
- FROM dbo.ptaki_stwierdzenia
- WHERE id_pomiar3 IS NOT NULL
-UNION ALL
- SELECT id_pomiar4 ,id_stw ,pomwartl4 ,pomwart4 ,datawpr ,dataed ,4
- FROM dbo.ptaki_stwierdzenia
- WHERE id_pomiar4 IS NOT NULL
-UNION ALL
- SELECT id_pomiar5 ,id_stw ,pomwartl5 ,pomwart5 ,datawpr ,dataed ,5
- FROM dbo.ptaki_stwierdzenia
- WHERE id_pomiar5 IS NOT NULL
-UNION ALL
- SELECT id_pomiar6 ,id_stw ,pomwartl6 ,pomwart6 ,datawpr ,dataed ,6
- FROM dbo.ptaki_stwierdzenia
- WHERE id_pomiar6 IS NOT NULL
-UNION ALL
- SELECT id_pomiar7 ,id_stw ,pomwartl7 ,pomwart7 ,datawpr ,dataed ,7
- FROM dbo.ptaki_stwierdzenia
- WHERE id_pomiar7 IS NOT NULL
-UNION ALL
- SELECT id_pomiar8 ,id_stw ,pomwartl8 ,pomwart8 ,datawpr ,dataed ,8
- FROM dbo.ptaki_stwierdzenia
- WHERE id_pomiar8 IS NOT NULL
-UNION ALL
- SELECT id_pomiar9 ,id_stw ,pomwartl9 ,pomwart9 ,datawpr ,dataed ,9
- FROM dbo.ptaki_stwierdzenia
- WHERE id_pomiar9 IS NOT NULL) src
+    ,is_direct
+FROM (SELECT id_pomiar AS measurement_type_id
+           , id_stw    AS sighting_id
+           , pomwartl  AS numeric_value
+           , pomwart   AS text_value
+           , datawpr   AS created_at
+           , dataed    AS updated_at
+           , pomr      AS is_direct
+           , 0         AS measurement_no
+      FROM dbo.ptaki_stwierdzenia
+      UNION ALL
+      SELECT id_pomiar1, id_stw, pomwartl1, pomwart1, datawpr, dataed, pomr1, 1
+      FROM dbo.ptaki_stwierdzenia
+      UNION ALL
+      SELECT id_pomiar2, id_stw, pomwartl2, pomwart2, datawpr, dataed, pomr2, 2
+      FROM dbo.ptaki_stwierdzenia
+      UNION ALL
+      SELECT id_pomiar3, id_stw, pomwartl3, pomwart3, datawpr, dataed, pomr3, 3
+      FROM dbo.ptaki_stwierdzenia
+      UNION ALL
+      SELECT id_pomiar4, id_stw, pomwartl4, pomwart4, datawpr, dataed, pomr4, 4
+      FROM dbo.ptaki_stwierdzenia
+      UNION ALL
+      SELECT id_pomiar5, id_stw, pomwartl5, pomwart5, datawpr, dataed, pomr5, 5
+      FROM dbo.ptaki_stwierdzenia
+      UNION ALL
+      SELECT id_pomiar6, id_stw, pomwartl6, pomwart6, datawpr, dataed, pomr6, 6
+      FROM dbo.ptaki_stwierdzenia
+      UNION ALL
+      SELECT id_pomiar7, id_stw, pomwartl7, pomwart7, datawpr, dataed, pomr7, 7
+      FROM dbo.ptaki_stwierdzenia
+      UNION ALL
+      SELECT id_pomiar8, id_stw, pomwartl8, pomwart8, datawpr, dataed, pomr8, 8
+      FROM dbo.ptaki_stwierdzenia
+      UNION ALL
+      SELECT id_pomiar9, id_stw, pomwartl9, pomwart9, datawpr, dataed, pomr9, 9
+      FROM dbo.ptaki_stwierdzenia) src
+WHERE numeric_value IS NOT NULL OR text_value IS NOT NULL
 ORDER BY sighting_id, measurement_no
 ;
 
