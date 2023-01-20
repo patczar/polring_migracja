@@ -55,7 +55,7 @@ obraczki_stan to jest pośrednie powiązanie obserwacji i obrączki
 
 obrączki metalowe oraz inne (plastikowe - kolorwe)
 
-w starej wersji były dwie tabele na to. używane były głównie w metalowe
+w starej wersji były dwie tabele na to. używane były głównie metalowe
 * obraczki (metalowe)
 * magobraczki i magkolorowe - zarządzanie obrączkami
 
@@ -76,7 +76,7 @@ dla kolorowej podaje się kolor (do dwóch) i numer, ale też gatunek ptaka doda
 
 rezygnacja z wielu kolumn, które są tak naprawdę redundatne
 
-obraczki seria numer i numer_ob_pel (konkatenacja) i z mniej rezygnujemy
+obraczki seria numer i numer_ob_pel (konkatenacja) i z niej rezygnujemy
 do łączenia obraczek z magazynem używają właśnie tej kolumny
 
 magobraczki: lpdlug - liczba znaków; lp - po prostu numer, a plpelny uzupełniony o zera

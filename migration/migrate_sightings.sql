@@ -133,5 +133,25 @@ WHERE numeric_value IS NOT NULL OR text_value IS NOT NULL
 ORDER BY sighting_id, measurement_no
 ;
 
+-- ptaki_obraczkistan → ring_sighting
+
+INSERT INTO public.ring_sighting (
+       id
+      ,ring_id
+      ,sighting_id
+      ,ring_status_id
+      ,sort_order
+      ,created_at
+      ,updated_at
+)
+SELECT id_obraczkistan  -- id
+     ,id_obraczki       -- ring_id
+     ,id_stw            -- sighting_id
+     ,id_stan           -- ring_status_id
+     ,lp                -- sort_order
+     ,NULL              -- created_at
+     ,NULL              -- updated_at
+FROM dbo.ptaki_obraczkistan;
+
 COMMIT;
 

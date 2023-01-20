@@ -127,3 +127,9 @@ SELECT id_stw, --z
        hash
 FROM dbo.ptaki_stwierdzenia
 LIMIT 1;
+
+
+
+SELECT count(*) FROM dbo.ptaki_obraczki;
+
+SELECT count(*) FROM public.rings;
