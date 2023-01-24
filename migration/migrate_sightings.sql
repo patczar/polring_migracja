@@ -16,7 +16,50 @@ TRUNCATE public.sightings
     , public.sighting_user
     , public.sighting_verifications
     , public.bird_family_sightings_rings
+    , public.locations
 ;
+
+-- ptaki_lokalizacja → locations
+INSERT INTO public.locations (id
+    ,name
+    ,abbr
+    ,coordinate_accuracy_id
+    ,created_at
+    ,updated_at
+    ,province_id
+    ,country_id
+    ,user_id
+    ,is_in_user_registry
+    ,is_in_employee_registry
+    ,has_manually_edited_province_or_country
+    ,source
+    ,is_from_gps
+    ,coordinates
+)
+SELECT id_lokalizacja
+    ,miejsce --name
+    ,skrot --abbr
+    ,id_dk --coordinate_accuracy_id
+    ,NULL --created_at
+    ,NULL --updated_at
+    ,id_prow --province_id
+    ,id_kraj --country_id
+    ,NULL --TODO (users) id_obr --user_id
+    ,FALSE --! ? wpisobraczkarz --is_in_user_registry
+    ,FALSE --! ? wpispracstacji --is_in_employee_registry
+    ,FALSE --! has_manually_edited_province_or_country
+    ,NULL --! source
+    ,gps --is_from_gps
+    ,st_geomfromtext(concat('point(', dlug, ' ', szer, ')')) --coordinates
+-- pozostale pola, poza współrzędnymi:
+--     ,kliknamapie
+--     ,zweryfikowany
+--     ,listaprac
+--     ,geog -- bytea / BLOB
+FROM dbo.ptaki_lokalizacja;
+
+-- Alternatywny sposób uzyskiwania coordinates:
+-- st_geomfromtext(concat('point(', dlugz * (dlugd + dlugm / 60.0 + dlugs / 3600.0), ' ', szerz * (szerd + szerm / 60.0 + szers / 3600.0), ')'))
 
 
 -- ptaki_stwierdzenia → sightings
@@ -55,8 +98,7 @@ SELECT id_stw -- id,
        ,id_wer --ring_verification_id,
        ,datawpr --created_at,
        ,dataed --updated_at,
-       --TODO mapowanie locations
-       ,NULL -- id_lokalizacja, --location_id,
+       ,id_lokalizacja --location_id,
        --TODO mapowanie users
        ,NULL -- id_uzytkownika_wpr, --created_by,
        ,NULL -- id_uzytkownika_ed, --updated_by,

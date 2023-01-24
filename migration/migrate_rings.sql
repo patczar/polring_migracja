@@ -35,7 +35,7 @@ SELECT id_obraczki -- > id
     ,NULL -- > ringer_id
     -- ,kodzdubl >
     -- ,numerobpel >
-    -- ,id_monit >
+    -- ,id_monit > -- na pewno powiązane z ptaki_monity
 FROM dbo.ptaki_obraczki;
 
 COMMIT;

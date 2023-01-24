@@ -128,6 +128,81 @@ SELECT id_stw, --z
 FROM dbo.ptaki_stwierdzenia
 LIMIT 1;
 
+SELECT count(*) FROM dbo.ptaki_lokalizacja;
+
+SELECT * FROM dbo.ptaki_lokalizacja
+WHERE length(skrot) > 10;
+
+SELECT max(length(skrot)) FROM dbo.ptaki_lokalizacja;
+-- zmiana varchar(10) na varchar(20)
+
+
+SELECT id_lokalizacja
+    ,szer
+    ,szerd, szerm, szers
+    ,dlug
+    ,dlugd, dlugm, dlugs
+FROM dbo.ptaki_lokalizacja;
+
+SELECT id_lokalizacja
+    ,szer
+    ,szerd + szerm / 60.0 + szers / 3600.0 AS szer_liczona
+    ,dlug
+    ,dlugd + dlugm / 60.0 + dlugs / 3600.0 AS dlug_liczona
+FROM dbo.ptaki_lokalizacja;
+
+SELECT max(abs(szer - szer_liczona)) AS max_szer_dif, max(abs(dlug - dlug_liczona)) AS max_dlug_dif
+FROM (SELECT id_lokalizacja
+    ,szer
+    ,(szerd + szerm / 60.0 + szers / 3600.0) * szerz AS szer_liczona
+    ,dlug
+    ,(dlugd + dlugm / 60.0 + dlugs / 3600.0) * dlugz AS dlug_liczona
+FROM dbo.ptaki_lokalizacja) sub;
+
+SELECT *
+FROM (SELECT id_lokalizacja
+    ,szer
+    ,(szerd + szerm / 60.0 + szers / 3600.0) * szerz AS szer_liczona
+    ,dlug
+    ,(dlugd + dlugm / 60.0 + dlugs / 3600.0) * dlugz AS dlug_liczona
+FROM dbo.ptaki_lokalizacja) sub
+ORDER BY abs(szer - szer_liczona) + abs(dlug - dlug_liczona) DESC;
+
+SELECT id_lokalizacja
+    ,miejsce --name
+    ,skrot --abbr
+    ,id_dk --coordinate_accuracy_id
+    ,NULL --created_at
+    ,NULL --updated_at
+    ,id_prow --province_id
+    ,id_kraj --country_id
+    ,id_obr --user_id
+    ,wpisobraczkarz --is_in_user_registry
+    ,wpispracstacji --is_in_employee_registry
+    ,FALSE --! has_manually_edited_province_or_country
+    ,NULL --! source
+    ,gps --is_from_gps
+    ,kliknamapie
+    ,zweryfikowany
+    ,listaprac
+    ,geog
+    ,szer
+    ,dlug
+    ,szerd
+    ,szerm
+    ,szers
+    ,dlugd
+    ,dlugm
+    ,dlugs
+    ,szerdms
+    ,dlugdms
+    ,szerz
+    ,dlugz
+    ,concat('point(', dlug, ' ', szer, ')')
+    ,st_geomfromtext(concat('point(', dlug, ' ', szer, ')'))
+    ,concat('point(', dlugz * (dlugd + dlugm / 60.0 + dlugs / 3600.0), ' ', szerz * (szerd + szerm / 60.0 + szers / 3600.0), ')')
+    ,st_geomfromtext(concat('point(', dlugz * (dlugd + dlugm / 60.0 + dlugs / 3600.0), ' ', szerz * (szerd + szerm / 60.0 + szers / 3600.0), ')'))
+FROM dbo.ptaki_lokalizacja;
 
 
 SELECT count(*) FROM dbo.ptaki_obraczki;
