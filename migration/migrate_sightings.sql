@@ -6,7 +6,6 @@ TRUNCATE public.sightings
     , public.interesting_sightings
     , public.measurements
     , public.notification_sightings
-    , public.ring_sighting
     , public.sighting_amendments
     , public.sighting_amendment_files
     , public.sighting_amendment_conversations
@@ -17,7 +16,42 @@ TRUNCATE public.sightings
     , public.sighting_verifications
     , public.bird_family_sightings_rings
     , public.locations
+    , public.rings
+    , public.bird_family_sightings_rings
+    , public.notifications
+    , public.ring_sighting
+    , public.rings_in_stocks
+    , public.stock_document_position_rings_in_stocks
+    , public.sent_notifications
+    , public.sent_attachments
 ;
+
+\echo 'rings start'
+INSERT INTO public.rings(
+     id
+    ,ring_type_id
+    ,scheme_id
+    ,color_id
+    ,number
+    ,created_at
+    ,updated_at
+    ,species_id
+    ,ringer_id
+)
+SELECT id_obraczki -- > id
+    ,id_typ -- > ring_type_id
+    ,id_ctr -- > scheme_id
+    ,id_kolor -- > color_id
+    ,concat(seria, numer) -- > number
+    ,NULL -- > created_at
+    ,NULL -- > updated_at
+    ,id_gat
+    ,NULL -- > ringer_id
+    -- ,kodzdubl >
+    -- ,numerobpel >
+    -- ,id_monit > -- na pewno powiązane z ptaki_monity
+FROM dbo.ptaki_obraczki;
+\echo 'rings done'
 
 -- ptaki_lokalizacja → locations
 \echo 'locations start'
