@@ -2070,8 +2070,8 @@ ALTER SEQUENCE public.jobs_id_seq OWNED BY public.jobs.id;
 
 CREATE TABLE public.locations (
     id bigint NOT NULL,
-    name character varying(100) NOT NULL,
-    abbr character varying(10),
+    name character varying(100),
+    abbr character varying(20),
     coordinates public.geography(Point,4326) NOT NULL,
     coordinate_accuracy_id bigint,
     created_at timestamp(0) without time zone,
