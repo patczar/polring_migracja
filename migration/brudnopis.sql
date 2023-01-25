@@ -128,13 +128,31 @@ SELECT id_stw, --z
 FROM dbo.ptaki_stwierdzenia
 LIMIT 1;
 
+-- Lokalizacje --
+
 SELECT count(*) FROM dbo.ptaki_lokalizacja;
 
 SELECT * FROM dbo.ptaki_lokalizacja
 WHERE length(skrot) > 10;
 
 SELECT max(length(skrot)) FROM dbo.ptaki_lokalizacja;
--- zmiana varchar(10) na varchar(20)
+-- konieczna zmiana varchar(10) na varchar(20)
+
+SELECT id_lokalizacja, miejsce, skrot, szer, dlug
+FROM dbo.ptaki_lokalizacja
+WHERE miejsce IS NULL;
+
+SELECT count(*)
+FROM dbo.ptaki_lokalizacja
+WHERE miejsce IS NULL;
+
+SELECT count(*)
+FROM dbo.ptaki_lokalizacja
+WHERE miejsce = '';
+
+-- Konieczne usunięcie NOT NULL
+-- alter table locations
+--     alter column name drop not null;
 
 
 SELECT id_lokalizacja
@@ -208,3 +226,20 @@ FROM dbo.ptaki_lokalizacja;
 SELECT count(*) FROM dbo.ptaki_obraczki;
 
 SELECT count(*) FROM public.rings;
+
+CREATE TABLE pcz_locs(
+    id bigint primary key,
+    name varchar(200),
+    coordinates geography(Point, 4326)
+);
+
+INSERT INTO pcz_locs(id, name, coordinates)
+SELECT id_lokalizacja, miejsce,
+       st_geomfromtext(concat('point(', dlug, ' ', szer, ')'))
+FROM dbo.ptaki_lokalizacja
+ORDER BY id_lokalizacja
+--LIMIT 10000
+;
+
+DROP TABLE pcz_locs;
+

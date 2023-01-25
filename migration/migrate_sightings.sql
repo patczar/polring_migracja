@@ -20,6 +20,9 @@ TRUNCATE public.sightings
 ;
 
 -- ptaki_lokalizacja → locations
+\echo 'locations start'
+ALTER TABLE public.locations DISABLE TRIGGER update_province_and_country;
+
 INSERT INTO public.locations (id
     ,name
     ,abbr
@@ -51,8 +54,7 @@ SELECT id_lokalizacja
     ,NULL --! source
     ,gps --is_from_gps
     ,st_geomfromtext(concat('point(', dlug, ' ', szer, ')')) --coordinates
--- pozostale pola, poza współrzędnymi:
---     ,kliknamapie
+-- pozostale pola, poza współrzędnymi:--     ,kliknamapie
 --     ,zweryfikowany
 --     ,listaprac
 --     ,geog -- bytea / BLOB
@@ -61,8 +63,12 @@ FROM dbo.ptaki_lokalizacja;
 -- Alternatywny sposób uzyskiwania coordinates:
 -- st_geomfromtext(concat('point(', dlugz * (dlugd + dlugm / 60.0 + dlugs / 3600.0), ' ', szerz * (szerd + szerm / 60.0 + szers / 3600.0), ')'))
 
+ALTER TABLE public.locations ENABLE TRIGGER update_province_and_country;
+\echo 'locations done'
+
 
 -- ptaki_stwierdzenia → sightings
+\echo 'sightings start'
 INSERT INTO public.sightings (id, "date", "hour", minutes, comments, comments_hidden, date_accuracy_id, species_id,
                        species_by_scheme_id, age_id, age_by_scheme_id, sex_id, sex_by_scheme_id, plumage_id,
                        condition_id, circumstances_id, circumstances_validation_id, decoy_id, capture_method_id,
@@ -117,8 +123,10 @@ SELECT id_stw -- id,
        ,NULL --family_ring_number
 FROM dbo.ptaki_stwierdzenia
 ;
+\echo 'sightings done'
 
 -- ptaki_stwierdzenia → measurements
+\echo 'measurements start'
 INSERT INTO public.measurements (
     measurement_type_id
     ,sighting_id
@@ -174,9 +182,10 @@ FROM (SELECT id_pomiar AS measurement_type_id
 WHERE numeric_value IS NOT NULL OR text_value IS NOT NULL
 ORDER BY sighting_id, measurement_no
 ;
+\echo 'measurements done'
 
 -- ptaki_obraczkistan → ring_sighting
-
+\echo 'ring_sighting start'
 INSERT INTO public.ring_sighting (
        id
       ,ring_id
@@ -194,6 +203,6 @@ SELECT id_obraczkistan  -- id
      ,NULL              -- created_at
      ,NULL              -- updated_at
 FROM dbo.ptaki_obraczkistan;
-
+\echo 'ring_sighting done'
 COMMIT;
-
+\echo 'commited'
